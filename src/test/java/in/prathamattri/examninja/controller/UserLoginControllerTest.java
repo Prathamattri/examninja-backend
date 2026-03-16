@@ -31,27 +31,26 @@ class UserLoginControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private @NonNull UserLoginDto login_success_setup(String email, String password) {
-        UserLoginDto userLoginDto = new UserLoginDto(email, password);
-        User userObject = User.builder().email(email).password(password).build();
+    private @NonNull UserLoginDto login_success_setup() {
+        UserLoginDto userLoginDto = new UserLoginDto("testmail@gmail.com", "testpass");
+        User userObject = User.builder().email("testmail@gmail.com").password("testpass").build();
 
-        Mockito.when(userService.getUser(email)).thenReturn(userObject);
-
-        return userLoginDto;
-    }
-    private @NonNull UserLoginDto login_fail_bad_email_setup(String email, String password) {
-        UserLoginDto userLoginDto = new UserLoginDto(email, password);
-        User userObject = User.builder().email(email).password(password).build();
-
-        Mockito.when(userService.getUser(email)).thenReturn(userObject);
+        Mockito.when(userService.getUser("testmail@gmail.com")).thenReturn(userObject);
 
         return userLoginDto;
     }
-    private @NonNull UserLoginDto login_fail_wrong_email_setup(String email, String password) {
-        UserLoginDto userLoginDto = new UserLoginDto(email, password);
-        User userObject = User.builder().email(email).password(password).build();
+    private @NonNull UserLoginDto login_fail_bad_email_setup() {
+        UserLoginDto userLoginDto = new UserLoginDto("usermail", "");
+        User userObject = User.builder().email("usermail").build();
 
-        Mockito.when(userService.getUser(email)).thenReturn(null);
+        Mockito.when(userService.getUser("usermail")).thenReturn(userObject);
+
+        return userLoginDto;
+    }
+    private @NonNull UserLoginDto login_fail_wrong_email_setup() {
+        UserLoginDto userLoginDto = new UserLoginDto("user@mail.com", "testpass");
+
+        Mockito.when(userService.getUser("user@mail.com")).thenReturn(null);
 
         return userLoginDto;
     }
@@ -59,7 +58,7 @@ class UserLoginControllerTest {
     @Test
     void login_success() throws Exception {
 
-        UserLoginDto userLoginDto = login_success_setup("testmail@gmail.com", "testpass");
+        UserLoginDto userLoginDto = login_success_setup();
 
         mockMvc.perform(
                         post("/user/login")
@@ -74,7 +73,7 @@ class UserLoginControllerTest {
 
     @Test
     void login_fail_bad_email() throws Exception {
-        UserLoginDto userLoginDto = login_fail_bad_email_setup("usermail", "");
+        UserLoginDto userLoginDto = login_fail_bad_email_setup();
         mockMvc.perform(post("/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userLoginDto)))
@@ -85,7 +84,7 @@ class UserLoginControllerTest {
 
     @Test
     void login_fail_no_match() throws Exception {
-        UserLoginDto userLoginDto = login_fail_wrong_email_setup("user@mail.com", "testpass");
+        UserLoginDto userLoginDto = login_fail_wrong_email_setup();
         mockMvc.perform(post("/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userLoginDto)))
