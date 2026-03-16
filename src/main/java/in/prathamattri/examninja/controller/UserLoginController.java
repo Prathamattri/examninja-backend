@@ -5,14 +5,16 @@ import in.prathamattri.examninja.dto.UserLoginDto;
 import in.prathamattri.examninja.model.User;
 import in.prathamattri.examninja.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+
+import java.time.Duration;
 
 import static in.prathamattri.examninja.util.EmailValidator.isValidEmail;
 
@@ -26,10 +28,22 @@ public class UserLoginController {
     public ResponseEntity<SuccessResponse> login(@RequestBody UserLoginDto userLoginDto) {
         validateUserLoginDto(userLoginDto);
         User user = userService.getUser(userLoginDto.email());
+
         if (user != null && user.getPassword().equals(userLoginDto.password())) {
+            String token = user.getId() + "_" + user.getEmail();
+            ResponseCookie responseCookie = ResponseCookie
+                    .from("token", token)
+                    .maxAge(Duration.ofMinutes(5L))
+                    .build();
             return ResponseEntity
-                    .status(HttpStatus.OK)
+                    .ok()
+                    .header("Set-Cookie", responseCookie.toString())
                     .body(new SuccessResponse("Login success", "user_auth_token"));
+        }else if(user == null){
+            throw HttpClientErrorException.NotFound.create(
+                    HttpStatusCode.valueOf(404),
+                    "Email id is not registered",
+                    null, null, null );
         }
 
         throw HttpClientErrorException.Unauthorized.create(
