@@ -3,6 +3,8 @@ package in.prathamattri.examninja.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,10 +19,12 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
     @Column(name = "first_name")
-    private String fName;
+    private String firstName;
     @Column(name = "last_name")
-    private String lName;
+    private String lastName;
     private String password;
     private final String role = "ROLE_USER";
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
 }

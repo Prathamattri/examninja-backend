@@ -18,7 +18,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-@WebMvcTest(UserLoginController.class)
+@WebMvcTest(UserAuthenticationController.class)
 @Import(SpringSecurityConfiguration.class)
 class UserLoginControllerTest {
 
