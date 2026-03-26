@@ -14,8 +14,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 @CrossOrigin(originPatterns = "*")
 @RequestMapping("/user")
@@ -56,7 +58,27 @@ public class UserAuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<SuccessResponse> register(@Valid @RequestBody UserRegisterDto userRegisterDto) {
-        return null;
+        if(userService.getUser(userRegisterDto.email()) != null){
+            throw HttpClientErrorException.BadRequest.create(
+                    HttpStatusCode.valueOf(400),
+                    "Registration Error",
+                    null,
+                    "Email address is already in use".getBytes(StandardCharsets.UTF_8),
+                    Charset.defaultCharset()
+            );
+        }
+        User user = User.builder()
+                .email(userRegisterDto.email())
+                .password(userRegisterDto.password())
+                .firstName(userRegisterDto.firstName())
+                .lastName(userRegisterDto.lastName())
+                .createdAt(LocalDateTime.now())
+                .build();
+        userService.addUser(user);
+
+        return ResponseEntity.ok(
+                new SuccessResponse("Registration successful", "user_auth_token")
+        );
     }
 
 }

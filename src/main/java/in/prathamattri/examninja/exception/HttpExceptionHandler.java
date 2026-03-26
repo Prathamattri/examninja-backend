@@ -29,7 +29,6 @@ public class HttpExceptionHandler {
                 errorList.add(error.getDefaultMessage());
                 errors.put(error.getField(), errorList);
             }
-            System.out.println(error.getDefaultMessage());
         });
 
         ErrorResponse errorResponse = new ErrorResponse("Bad request body", errors);

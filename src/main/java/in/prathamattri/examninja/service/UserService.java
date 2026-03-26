@@ -15,4 +15,9 @@ public class UserService {
         Optional<User> userByEmail = userRepository.findByEmail(email);
         return userByEmail.orElse(null);
     }
+
+    public boolean addUser(User user) {
+        userRepository.save(user);
+        return true;
+    }
 }
